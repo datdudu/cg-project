@@ -75,19 +75,18 @@ def rasterizar_curva_hermite(p0, p1, t0, t1, res_x, res_y, num_segmentos):
 # Função para criar diferentes curvas de Hermite
 def criar_curvas_hermite():
     curvas = [
-        [(0.0, 0.0), (0.5, 0.5), (1.0, 0.0), (0.0, 1.0)],  # Curva 1
-        [(0.5, -0.5), (-0.5, 0.5), (0.0, 1.0), (1.0, 0.0)], # Curva 2
-        [(-0.7, -0.7), (0.7, 0.7), (0.0, 1.0), (1.0, 0.0)], # Curva 3
-        [(-0.5, 0.5), (-0.5, -0.5), (2.0, -1.0), (-2.0, 1.0)], # Curva 4
-        [(0.0, 0.0), (0.5, 0.5), (2.0, -2.0), (-2.0, 2.0)]  # Curva 5
+        [(-0.5, 0.5), (-0.5, -0.5), (2.0, -1.0), (-2.0, 1.0)], # Curva 1
+        [(0.0, 0.0), (0.5, 0.5), (2.0, -2.0), (-2.0, 2.0)],  # Curva 2
+        [(0.5, -0.5), (-0.5, 0.5), (0.0, 1.0), (1.0, 0.0)], # Curva 3
+        [(-0.7, -0.7), (0.7, 0.7), (0.0, 1.0), (1.0, 0.0)], # Curva 4
+        [(0.0, 0.0), (0.5, 0.5), (1.0, 0.0), (0.0, 1.0)]  # Curva 5
     ]
     return curvas
 
 # Função para visualizar a imagem rasterizada
-def visualizar_imagem(imagem, titulo=""):
-    plt.imshow(imagem, cmap='gray', origin='lower')
-    plt.title(titulo)
-    plt.show()
+def visualizar_imagem(imagem, ax):
+    ax.imshow(imagem, cmap='gray', origin='lower')
+    ax.axis('off')
 
 # Função principal para rasterizar e visualizar todas as curvas
 def rasterizar_curvas_hermite():
@@ -95,14 +94,24 @@ def rasterizar_curvas_hermite():
     resolucao = (500, 500)
     
     # Quantidades diferentes de segmentos para comparar
-    num_segmentos_variantes = [5, 20, 100]
+    num_segmentos_variantes = [5, 10, 25]
 
     for i, curva in enumerate(curvas):
         p0, p1, t0, t1 = curva
+        imagens = []
         for num_segmentos in num_segmentos_variantes:
             imagem = rasterizar_curva_hermite(np.array(p0), np.array(p1), np.array(t0), np.array(t1), resolucao[0], resolucao[1], num_segmentos)
-            titulo = f"Curva Hermite {i+1} com {num_segmentos} segmentos"
-            visualizar_imagem(imagem, titulo)
+            imagens.append(imagem)
+        
+        # Cria uma nova figura com subplots para exibir todas as resoluções para a curva atual
+        fig, axs = plt.subplots(1, 3, figsize=(15, 8))
+        for ax, num_segmentos, img in zip(axs, num_segmentos_variantes, imagens):
+            visualizar_imagem(img, ax)
+            ax.set_title(f"{num_segmentos} segmentos")
+        
+        plt.suptitle(f"Curva Hermite {i+1}")
+        plt.subplots_adjust(wspace=0.1)  # Ajusta o espaçamento horizontal entre os subplots
+        plt.show()
 
 # Executa a rasterização das curvas de Hermite
 if __name__ == "__main__":

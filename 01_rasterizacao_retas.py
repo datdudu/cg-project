@@ -65,20 +65,61 @@ class RasterizacaoApp:
         self.segmentos = []
 
     def adicionar_segmento(self):
-        # Solicita ao usuário as coordenadas dos pontos
-        x0 = simpledialog.askfloat("Input", "Digite x0 (-1 a 1):", minvalue=-1, maxvalue=1)
-        y0 = simpledialog.askfloat("Input", "Digite y0 (-1 a 1):", minvalue=-1, maxvalue=1)
-        x1 = simpledialog.askfloat("Input", "Digite x1 (-1 a 1):", minvalue=-1, maxvalue=1)
-        y1 = simpledialog.askfloat("Input", "Digite y1 (-1 a 1):", minvalue=-1, maxvalue=1)
+        # Cria uma nova janela de diálogo
+        dialog = tk.Toplevel(self.master)
+        dialog.title("Inserir Coordenadas")
 
-        if None in [x0, y0, x1, y1]:
-            messagebox.showerror("Erro", "Todos os valores devem ser fornecidos.")
-            return
+        tk.Label(dialog, text="Digite as coordenadas x0, y0, x1, y1 nos campos abaixo:").pack(pady=10)
 
-        # Adiciona o segmento à lista
-        self.segmentos.append((x0, y0, x1, y1))
-        # Desenha o segmento no canvas normalizado
-        self.canvas.create_line(self.normalizar(x0), self.normalizar_invertido(y0), self.normalizar(x1), self.normalizar_invertido(y1), fill="blue")
+        # Campos de entrada para x0, y0, x1, y1 com rótulos
+        tk.Label(dialog, text="x0:").pack()
+        entry_x0 = tk.Entry(dialog)
+        entry_x0.pack()
+
+        tk.Label(dialog, text="y0:").pack()
+        entry_y0 = tk.Entry(dialog)
+        entry_y0.pack()
+
+        tk.Label(dialog, text="x1:").pack()
+        entry_x1 = tk.Entry(dialog)
+        entry_x1.pack()
+
+        tk.Label(dialog, text="y1:").pack()
+        entry_y1 = tk.Entry(dialog)
+        entry_y1.pack()
+
+        # Função para capturar os valores e realizar a validação
+        def confirmar():
+            try:
+                x0 = float(entry_x0.get())
+                y0 = float(entry_y0.get())
+                x1 = float(entry_x1.get())
+                y1 = float(entry_y1.get())
+            except ValueError:
+                messagebox.showerror("Erro", "Todos os valores devem ser números.")
+                return
+
+            # Verifica se os valores estão dentro do intervalo [-1, 1]
+            if not all(-1 <= v <= 1 for v in [x0, y0, x1, y1]):
+                messagebox.showerror("Erro", "Valor inserido inválido. Todos os valores devem estar no intervalo [-1, 1].")
+                return
+
+            # Adiciona o segmento à lista e fecha o diálogo
+            self.segmentos.append((x0, y0, x1, y1))
+            self.canvas.create_line(self.normalizar(x0), self.normalizar_invertido(y0), self.normalizar(x1), self.normalizar_invertido(y1), fill="blue")
+            dialog.destroy()
+
+        # Botão para confirmar a entrada
+        tk.Button(dialog, text="Confirmar", command=confirmar).pack(pady=10)
+
+        # Foco no primeiro campo
+        entry_x0.focus_set()
+
+        # Impede que o usuário interaja com a janela principal até que o diálogo seja fechado
+        dialog.transient(self.master)
+        dialog.grab_set()
+        self.master.wait_window(dialog)
+
 
     def rasterizar_todos(self):
         if not self.segmentos:

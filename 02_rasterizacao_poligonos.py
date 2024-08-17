@@ -55,21 +55,30 @@ def criar_poligonos():
     return [triangulo1, triangulo2, quadrado1, quadrado2, hexagono1, hexagono2]
 
 # Função para visualizar a imagem rasterizada
-def visualizar_imagem(imagem):
-    plt.imshow(imagem, cmap='gray')
-    plt.show()
+def visualizar_imagem(imagem, ax):
+    ax.imshow(imagem, cmap='gray')
+    ax.axis('off')
 
 # Função principal para rasterizar e visualizar todos os polígonos no mesmo canvas
 def rasterizar_poligonos():
     poligonos = criar_poligonos()
     resolucoes = [(100, 100), (300, 300), (800, 600), (1920, 1080)]
 
-    for res_x, res_y in resolucoes:
+    # Cria uma nova figura com subplots para exibir todas as resoluções
+    fig, axs = plt.subplots(2, 2, figsize=(13, 9))
+    axs = axs.flatten()
+
+    for i, (res_x, res_y) in enumerate(resolucoes):
         imagem = np.zeros((res_y, res_x), dtype=np.uint8)
         for vertices in poligonos:
             imagem = rasterizar_poligono(imagem, vertices, res_x, res_y)
-        plt.figure(f"Polígonos - Resolução {res_x}x{res_y}")
-        visualizar_imagem(imagem)
+        axs[i].imshow(imagem, cmap='gray')
+        axs[i].set_title(f"Polígonos - Resolução {res_x}x{res_y}")
+        axs[i].axis('off')  # Remove os eixos para uma visualização mais limpa
+
+    plt.subplots_adjust(hspace=3)  # Ajusta o espaçamento vertical entre as linhas de subplots
+    plt.tight_layout()
+    plt.show()
 
 # Executa a rasterização dos polígonos
 if __name__ == "__main__":
