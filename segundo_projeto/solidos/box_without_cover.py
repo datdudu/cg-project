@@ -26,11 +26,11 @@ def plot_caixa_sem_tampa(lado, altura):
     ax.add_collection3d(Poly3DCollection(faces, facecolors='saddlebrown', linewidths=1, edgecolors='r', alpha=.25))
     
     # Ajustar limites dos eixos
-    ax.set_xlim([0, lado])
-    ax.set_ylim([0, lado])
-    ax.set_zlim([0, altura])
+    ax.set_xlim([0, lado+2])
+    ax.set_ylim([0, lado+2])
+    ax.set_zlim([0, altura+2])
     
     plt.show()
 
 # Teste da função
-plot_caixa_sem_tampa(3, 2)
+plot_caixa_sem_tampa(6, 5)
