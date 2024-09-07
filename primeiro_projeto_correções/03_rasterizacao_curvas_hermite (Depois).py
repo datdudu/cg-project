@@ -1,3 +1,20 @@
+# RASTERIZAÇÃO DE CURVAS (HERMITE)
+# Código desenvolvido na disciplina de Computação Gráfica, do curso de Engenharia da Computação do IFCE Fortaleza
+# Autores: José Edilson Ceará Gomes Filho e Carlos Eduardo Carvalho Cardoso
+# Data: 10/08/2024
+
+# INSTRUÇÕES
+# 1 - Coloque os seguintes arquivos em uma única pasta:
+#       01_rasterizacao_retas.py
+#       02_rasterizacao_poligonos.py
+#       03_rasterizacao_curvas_hermite.py
+#       interface.py
+# 2 - Execute o interface.py
+# 3 - Escolha uma das opções de rasterização que aparecerá no menu
+
+###################################################################################################################
+
+# Importando as bibliotecas
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -7,27 +24,20 @@ def rasterizar_reta(x0, y0, x1, y1, res_x, res_y):
     
     # Converte coordenadas normalizadas [-1, 1] para coordenadas de pixel [0, res_x-1] e [0, res_y-1], com (0,0) centralizado
     x0 = int((x0 + 1) * (res_x - 1) / 2)
-    y0 = int((1 - y0) * (res_y - 1) / 2)
+    y0 = int((y0 + 1) * (res_y - 1) / 2)
     x1 = int((x1 + 1) * (res_x - 1) / 2)
-    y1 = int((1 - y1) * (res_y - 1) / 2)
+    y1 = int((y1 + 1) * (res_y - 1) / 2)
 
     dx = x1 - x0
     dy = y1 - y0
     
-    # Caso de reta vertical
-    if dx == 0:
-        if y0 > y1:
-            y0, y1 = y1, y0
-        for y in range(y0, y1 + 1):
-            imagem[y, x0] = 255
-    
-    # Caso de reta horizontal
-    elif dy == 0:
-        if x0 > x1:
-            x0, x1 = x1, x0
-        for x in range(x0, x1 + 1):
-            imagem[y0, x] = 255
-    
+    # Caso especial: segmento de ponto único
+    if dx == 0 and dy == 0:  
+        # Garante que o ponto único (x0, y0) está dentro dos limites da imagem
+        if 0 <= x0 < res_x and 0 <= y0 < res_y: 
+            imagem[y0, x0] = 255
+        return imagem
+
     # Caso 1: |Δx| > |Δy|, percorre x
     elif abs(dx) > abs(dy):
         if x0 > x1:
@@ -47,10 +57,10 @@ def rasterizar_reta(x0, y0, x1, y1, res_x, res_y):
             x = x0 + m * (y - y0)
             if 0 <= int(round(x)) < res_x and 0 <= y < res_y:
                 imagem[y, int(round(x))] = 255
-
     return imagem
 
 # Função para calcular um ponto na curva de Hermite
+# Os h's sçao componentes dos polinômios de Hermite
 def hermite_curve(p0, p1, t0, t1, t):
     h00 = 2*t**3 - 3*t**2 + 1
     h10 = t**3 - 2*t**2 + t
@@ -75,11 +85,11 @@ def rasterizar_curva_hermite(p0, p1, t0, t1, res_x, res_y, num_segmentos):
 # Função para criar diferentes curvas de Hermite
 def criar_curvas_hermite():
     curvas = [
-        [(-0.5, 0.5), (-0.5, -0.5), (2.0, -1.0), (-2.0, 1.0)], # Curva 1
-        [(0.0, 0.0), (0.5, 0.5), (2.0, -2.0), (-2.0, 2.0)],  # Curva 2
-        [(0.5, -0.5), (-0.5, 0.5), (0.0, 1.0), (1.0, 0.0)], # Curva 3
-        [(-0.7, -0.7), (0.7, 0.7), (0.0, 1.0), (1.0, 0.0)], # Curva 4
-        [(0.0, 0.0), (0.5, 0.5), (1.0, 0.0), (0.0, 1.0)]  # Curva 5
+        [(-0.5, 0.5), (-0.5, -0.5), (1, -1), (-1, 1)],      # Curva 1
+        [(0, 0), (0.5, 0.5), (1, -1), (-1, 1)],             # Curva 2
+        [(0.5, -0.5), (-0.5, 0.5), (0, 1), (1, 0)],         # Curva 3
+        [(-0.7, -0.7), (0.7, 0.7), (0, 1), (1, 0)],         # Curva 4
+        [(0, 0), (0.5, 0.5), (5, 0), (0, 5)]                # Curva 5
     ]
     return curvas
 
@@ -91,7 +101,7 @@ def visualizar_imagem(imagem, ax):
 # Função principal para rasterizar e visualizar todas as curvas
 def rasterizar_curvas_hermite():
     curvas = criar_curvas_hermite()
-    resolucao = (500, 500)
+    resolucao = (600, 600)
     
     # Quantidades diferentes de segmentos para comparar
     num_segmentos_variantes = [5, 10, 25]

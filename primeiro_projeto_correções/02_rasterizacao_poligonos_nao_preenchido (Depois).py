@@ -1,3 +1,20 @@
+# RASTERIZAÇÃO DE POLÍGONOS
+# Código desenvolvido na disciplina de Computação Gráfica, do curso de Engenharia da Computação do IFCE Fortaleza
+# Autores: José Edilson Ceará Gomes Filho e Carlos Eduardo Carvalho Cardoso
+# Data: 10/08/2024
+
+# INSTRUÇÕES
+# 1 - Coloque os seguintes arquivos em uma única pasta:
+#       01_rasterizacao_retas.py
+#       02_rasterizacao_poligonos.py
+#       03_rasterizacao_curvas_hermite.py
+#       interface.py
+# 2 - Execute o interface.py
+# 3 - Escolha uma das opções de rasterização que aparecerá no menu
+
+###################################################################################################################
+
+# Importando as bibliotecas
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -43,7 +60,7 @@ def rasterizar_poligono(imagem, vertices, res_x, res_y):
         imagem += rasterizar_reta(x0, y0, x1, y1, res_x, res_y)
     return imagem
 
-# Função para criar polígonos básicos com menos sobreposição
+# Função para criar polígonos básicos
 def criar_poligonos():
     triangulo1 = [(-0.95, -0.95), (-0.8, -0.5), (-0.65, -0.95)]
     triangulo2 = [(-0.5, -0.95), (-0.25, 0), (0, -0.95)]

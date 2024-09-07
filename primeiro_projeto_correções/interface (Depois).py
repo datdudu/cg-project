@@ -1,3 +1,21 @@
+# INTERFACE
+
+# Código desenvolvido na disciplina de Computação Gráfica, do curso de Engenharia da Computação do IFCE Fortaleza
+# Autores: José Edilson Ceará Gomes Filho e Carlos Eduardo Carvalho Cardoso
+# Data: 10/08/2024
+
+# INSTRUÇÕES
+# 1 - Coloque os seguintes arquivos em uma única pasta:
+#       01_rasterizacao_retas.py
+#       02_rasterizacao_poligonos.py
+#       03_rasterizacao_curvas_hermite.py
+#       interface.py
+# 2 - Execute o interface.py
+# 3 - Escolha uma das opções de rasterização que aparecerá no menu
+
+###################################################################################################################
+
+# Importando as bibliotecas
 import tkinter as tk
 from tkinter import simpledialog, messagebox
 import importlib.util
@@ -102,7 +120,7 @@ def rasterizar_retas():
 # RASTERIZAÇÃO DE POLÍGONOS
 def rasterizar_poligonos():
     try:
-        rasterizacao_poligono = load_module("02_rasterizacao_poligonos.py")
+        rasterizacao_poligono = load_module("02_rasterizacao_poligonos_nao_preenchido.py")
         rasterizacao_poligono.rasterizar_poligonos()
     except Exception as e:
         messagebox.showerror("Erro", f"Erro ao rasterizar polígonos: {e}")
