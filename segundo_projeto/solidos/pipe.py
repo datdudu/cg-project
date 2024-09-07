@@ -1,49 +1,43 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from hermite_curve import hermite
 
-def hermite_curve(P1, P2, T1, T2, t):
-    h1 = 2*t**3 - 3*t**2 + 1
-    h2 = -2*t**3 + 3*t**2
-    h3 = t**3 - 2*t**2 + t
-    h4 = t**3 - t**2
-    return h1*P1 + h2*P2 + h3*T1 + h4*T2
 
-def cano(raio, P1, P2, T1, T2, num_pontos=20, num_lados=20):
-    t_values = np.linspace(0, 1, num_pontos)
-    centers = np.array([hermite_curve(P1, P2, T1, T2, t) for t in t_values])
-    
-    theta = np.linspace(0, 2*np.pi, num_lados)
-    circulos = []
-    for center in centers:
-        circle = np.array([[center[0] + raio*np.cos(t), center[1] + raio*np.sin(t), center[2]] for t in theta])
-        circulos.append(circle)
-    
-    vertices = np.vstack(circulos)
-    
-    # Conectando os círculos para formar o cano
-    faces = []
-    for i in range(num_pontos - 1):
-        for j in range(num_lados):
-            next_j = (j + 1) % num_lados
-            faces.append([circulos[i][j], circulos[i][next_j], circulos[i+1][next_j], circulos[i+1][j]])
-    
-    return vertices, faces
+def generate_circle(center, tangent, radius, num_points):
+    # Gerar um círculo no plano perpendicular à tangente
+    theta = np.linspace(0, 2 * np.pi, num_points)
+    v = np.cross(tangent, [1, 0, 0])
+    if np.linalg.norm(v) < 1e-6:
+        v = np.cross(tangent, [0, 1, 0])
+    v /= np.linalg.norm(v)
+    u = np.cross(tangent, v)
+    u /= np.linalg.norm(u)
+    circle = np.array([center + radius * (np.cos(t) * u + np.sin(t) * v) for t in theta])
+    return circle
 
-def plot_cano(raio, P1, P2, T1, T2):
-    vertices, faces = cano(raio, P1, P2, T1, T2)
-    
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    
-    # Plotar faces
-    ax.add_collection3d(Poly3DCollection(faces, facecolors='blue', linewidths=1, edgecolors='r', alpha=.5))
-    
-    plt.show()
 
-# Teste da função
-P1 = np.array([0, 0, 0])
-P2 = np.array([5, 5, 5])
-T1 = np.array([1, 2, 1])
-T2 = np.array([1, -1, 2])
-plot_cano(1, P1, P2, T1, T2)
+def create_pipe(p0, t0, p1, t1, num_pointsH=20, num_pointsC=10, radius=0.5):
+    cano = []
+    edge_color = "#bc57cd"
+    face_color = "#ffd700"
+
+    p = hermite(p0, t0, p1, t1, num_pointsH)
+
+    # Gerar círculos ao longo da curva da alça
+    previous_circle = None
+    for i in range(len(p)):
+        if i < len(p) - 1:
+            tangent = np.array(p[i + 1]) - np.array(p[i])
+        else:
+            tangent = np.array(p[i]) - np.array(p[i - 1])
+        tangent /= np.linalg.norm(tangent)
+
+        # Gerar o círculo usando o ponto atual e a tangente
+        circle = generate_circle(np.array(p[i]), tangent, radius, num_pointsC)
+
+        # Conectar o círculo anterior ao atual, se houver
+        if previous_circle is not None:
+            for j in range(len(circle) - 1):
+                cano.append([previous_circle[j], previous_circle[j + 1], circle[j + 1], circle[j]])
+        previous_circle = circle
+
+    return cano, face_color, edge_color

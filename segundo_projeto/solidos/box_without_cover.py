@@ -22,7 +22,7 @@ def plot_solid_filled(ax, vertices, faces, cor='brown'):
     poly3d = [[vertices[vertice] for vertice in face] for face in faces]
     ax.add_collection3d(Poly3DCollection(poly3d, facecolors=cor, linewidths=2, edgecolors='k', alpha=0.7))
 
-def caixa_madeira_sem_tampa(lado_externo, altura_externa, espessura_parede):
+def caixa_madeira_sem_tampa(lado_externo, altura_externa, espessura_parede = 0.5):
     lado_interno = lado_externo - 2 * espessura_parede
     altura_interna = altura_externa - espessura_parede
     

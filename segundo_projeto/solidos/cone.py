@@ -1,35 +1,32 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from hermite_curve import hermite
 
-def cone(raio, altura, num_lados=20):
-    # Definir vértices da base
-    theta = np.linspace(0, 2*np.pi, num_lados)
-    base = np.array([[raio * np.cos(t), raio * np.sin(t), 0] for t in theta])
-    
-    # Vértice superior
-    topo = np.array([0, 0, altura])
-    
-    # Base do cone
-    faces = [[base[j], base[(j + 1) % num_lados], topo] for j in range(num_lados)]
-    
-    return np.vstack((base, topo)), faces
 
-def plot_cone(raio, altura):
-    vertices, faces = cone(raio, altura)
-    
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    
-    # Plotar faces
-    ax.add_collection3d(Poly3DCollection(faces, facecolors='gold', linewidths=1, edgecolors='r', alpha=.5))
-    
-    # Ajustar limites dos eixos
-    ax.set_xlim([-raio, raio])
-    ax.set_ylim([-raio, raio])
-    ax.set_zlim([0, altura])
-    
-    plt.show()
+def create_cone(height=1, radius=1, num_points=20):
+    p0 = np.array([0, 0, 0])
+    p1 = np.array([radius, 0, 0])
+    arc_t1 = [0, radius * 2, 0]
+    arc_t2 = [0, -radius * 2, 0]
 
-# Teste da função
-plot_cone(3, 5)
+    base_vertices = []
+
+    base_vertices += hermite(p0, arc_t1, p1, arc_t2, round(num_points / 2))
+    base_vertices += hermite(p0, arc_t2, p1, arc_t1, round(num_points / 2))
+
+    # define o meio da base do cone e depois a altura
+    vertex = [(p0[0] + p1[0]) / 2, p0[1], height]
+
+    # Conectar cada ponto da base ao vértice para formar as laterais do cone
+    cone = []
+    for i in range(len(base_vertices)):
+        # Obter o ponto atual e o próximo ponto (para criar uma face lateral)
+        p1 = base_vertices[i]
+        p2 = base_vertices[(i + 1) % len(base_vertices)]  # O próximo ponto, ou o primeiro se for o último ponto
+        # Criar um triângulo que conecta p1, p2 e o vértice
+        cone.append([p1, p2, vertex])
+
+    cone += [base_vertices]
+    face_color = "#190681"
+    edge_color = "#ff5800"
+
+    return cone, face_color, edge_color
